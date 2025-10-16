@@ -30,6 +30,8 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
+db.sqlite3
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
