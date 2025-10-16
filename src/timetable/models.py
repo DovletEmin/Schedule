@@ -14,7 +14,7 @@ class Course(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.faculty}, {self.number}"
+        return f"{self.faculty} {self.number}"
     
 class Group(models.Model):
     name = models.CharField(max_length=50)
@@ -55,6 +55,12 @@ class LessonNumber(models.Model):
     def __str__(self):
         return f"{self.number} - ({self.start_time} - {self.end_time})"
     
+class Room(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+    
 class Schedule(models.Model):
     class LessonTypeChoices(models.TextChoices):
         LECTURE = 'LEC', _("Umumy")
@@ -66,10 +72,11 @@ class Schedule(models.Model):
     lesson_number = models.ForeignKey(LessonNumber, on_delete=models.PROTECT)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
     lesson_type = models.CharField(max_length=3, choices=LessonTypeChoices.choices)
 
     class Meta:
         unique_together = ['group', 'day', 'week', 'lesson_number']
 
     def __str__(self):
-        return f"{self.group} - {self.day} - {self.lesson_number} - {self.subject}"
+        return f"{self.group} - {self.day} - {self.lesson_number} - {self.subject} - ({self.room})"
