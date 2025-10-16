@@ -1,20 +1,17 @@
 from django.contrib import admin
 from .models import *
 
-# Базовый админ для моделей без специфичных настроек
 @admin.register(Faculty, Course, Teacher, Subject, Day, Week, LessonNumber)
 class BaseAdmin(admin.ModelAdmin):
     list_display = ('__str__',)
 
-# Inline для расписания в админке групп
 class ScheduleInline(admin.TabularInline):
     model = Schedule
     extra = 1
 
-# Кастомная админка для Group с inline
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ('__str__',)  # Наследуем отображение из BaseAdmin
+    list_display = ('__str__',)
     inlines = [ScheduleInline]
 
 # Админка для Schedule
