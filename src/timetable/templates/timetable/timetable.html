@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="tm">
+<head>
+    <meta charset="UTF-8">
+    <title>Sapaklar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Noto Serif', serif; }
+        .header-green { background-color: #28a745; color: white; padding: 10px; text-align: center; font-size: 1.5em; font-weight: bold; }
+        .table th, .table td { vertical-align: middle; padding: 8px; }
+        .table th { background-color: #e9ecef; }
+        .nav-tabs .nav-link.active { background-color: #28a745; color: white; }
+        .table-secondary { background-color: #dee2e6; }
+        .table-light { background-color: #f8f9fa; }
+        .debug { color: red; font-weight: bold; }
+        .current-day { font-style: italic; color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="header-green">Sapaklar</div>
+
+        <ul class="nav nav-tabs mt-3">
+            <li class="nav-item">
+                <a class="nav-link {% if selected_week_id == 'all' %}active{% endif %}" href="?week=all{% if selected_day_id != 'all' %}&day={{ selected_day_id }}{% endif %}{% if selected_teacher_id %}&teacher={{ selected_teacher_id }}{% endif %}{% if selected_faculty_id != 'all' %}&faculty={{ selected_faculty_id }}{% endif %}{% if selected_course_id != 'all' %}&course={{ selected_course_id }}{% endif %}">Ähli hepde</a>
+            </li>
+            {% for week in weeks %}
+            <li class="nav-item">
+                <a class="nav-link {% if selected_week_id == week.id|stringformat:"s" %}active{% endif %}" href="?week={{ week.id }}{% if selected_day_id != 'all' %}&day={{ selected_day_id }}{% endif %}{% if selected_teacher_id %}&teacher={{ selected_teacher_id }}{% endif %}{% if selected_faculty_id != 'all' %}&faculty={{ selected_faculty_id }}{% endif %}{% if selected_course_id != 'all' %}&course={{ selected_course_id }}{% endif %}">{{ week.name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <form method="get" class="row mt-3">
+            <div class="col-md-3">
+                <label for="faculty" class="form-label">Fakultet saýla:</label>
+                <select name="faculty" id="faculty" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if selected_faculty_id == 'all' %}selected{% endif %}>Hemmesi</option>
+                    {% for faculty in faculties %}
+                    <option value="{{ faculty.id }}" {% if selected_faculty_id == faculty.id|stringformat:"s" %}selected{% endif %}>{{ faculty.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="course" class="form-label">Kurs saýla:</label>
+                <select name="course" id="course" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if selected_course_id == 'all' %}selected{% endif %}>Hemmesi</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}" {% if selected_course_id == course.id|stringformat:"s" %}selected{% endif %}>{{ course.number }} kurs</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="teacher_search" class="form-label">Mugallym gözle:</label>
+                <input type="text" id="teacher_search" class="form-control" placeholder="Mugallym adyny ýazyň">
+                <input type="hidden" name="teacher" id="teacher_id" value="{{ selected_teacher_id|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="day" class="form-label">Hemmä günkü saýla:</label>
+                <select name="day" id="day" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if selected_day_id == 'all' %}selected{% endif %}>Hemmesi</option>
+                    {% for day in days %}
+                    <option value="{{ day.id }}" {% if selected_day_id == day.id|stringformat:"s" %}selected{% endif %}>{{ day.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="week" value="{{ selected_week_id|default:'all' }}">
+        </form>
+
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th style="width: 15%;">1-nji beýle</th>
+                    <th style="width: 42.5%;">I Topar</th>
+                    <th style="width: 42.5%;">II Topar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for day_name, lessons in grouped_schedules.items %}
+                <tr>
+                    <td colspan="3" class="table-secondary">
+                        <strong>{{ day_name }}</strong>
+                        {% if day_name|lower == current_day_name %} <span class="current-day">(Häzirki gün)</span>{% endif %}
+                    </td>
+                </tr>
+                {% for pair_key, data in lessons.items %}
+                <tr>
+                    <td class="table-secondary">{{ pair_key }}</td>
+                    {% if data.group1 and data.group2 and data.group1.lesson_type == 'LEC' and data.group2.lesson_type == 'LEC' and data.group1.subject == data.group2.subject and data.group1.teacher == data.group2.teacher and data.group1.room == data.group2.room %}
+                    <td colspan="2" class="table-light">
+                        {{ data.group1.subject.name }}<br>
+                        {{ data.group1.teacher.full_name }}<br>
+                        {{ data.group1.room.name }} ({{ data.group1.lesson_number.start_time|time:"H:i" }}-{{ data.group1.lesson_number.end_time|time:"H:i" }})
+                    </td>
+                    {% elif data.group1 and data.group2 %}
+                    <td class="table-light">
+                        {{ data.group1.subject.name }}<br>
+                        {{ data.group1.teacher.full_name }}<br>
+                        {{ data.group1.room.name }} ({{ data.group1.lesson_number.start_time|time:"H:i" }}-{{ data.group1.lesson_number.end_time|time:"H:i" }})
+                    </td>
+                    <td class="table-light">
+                        {{ data.group2.subject.name }}<br>
+                        {{ data.group2.teacher.full_name }}<br>
+                        {{ data.group2.room.name }} ({{ data.group2.lesson_number.start_time|time:"H:i" }}-{{ data.group2.lesson_number.end_time|time:"H:i" }})
+                    </td>
+                    {% elif data.group1 %}
+                    <td class="table-light">
+                        {{ data.group1.subject.name }}<br>
+                        {{ data.group1.teacher.full_name }}<br>
+                        {{ data.group1.room.name }} ({{ data.group1.lesson_number.start_time|time:"H:i" }}-{{ data.group1.lesson_number.end_time|time:"H:i" }})
+                    </td>
+                    <td></td>
+                    {% elif data.group2 %}
+                    <td></td>
+                    <td class="table-light">
+                        {{ data.group2.subject.name }}<br>
+                        {{ data.group2.teacher.full_name }}<br>
+                        {{ data.group2.room.name }} ({{ data.group2.lesson_number.start_time|time:"H:i" }}-{{ data.group2.lesson_number.end_time|time:"H:i" }})
+                    </td>
+                    {% else %}
+                    <td></td><td></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                {% empty %}
+                <tr><td colspan="3" class="debug">Hiç hili sapak ýok (Нет уроков). Total days: {{ grouped_schedules|length }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="debug mt-2">Current day: {{ current_day_name }} (Debug)</div>
+    </div>
+
+    <script>
+        $(function() {
+            var teachers = [
+                {% for teacher in teachers %}
+                { label: "{{ teacher.full_name }}", value: {{ teacher.id }} },
+                {% endfor %}
+            ];
+            $("#teacher_search").autocomplete({
+                source: teachers,
+                select: function(event, ui) {
+                    $("#teacher_search").val(ui.item.label);
+                    $("#teacher_id").val(ui.item.value);
+                    this.form.submit();
+                    return false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

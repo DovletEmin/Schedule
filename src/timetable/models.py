@@ -48,12 +48,12 @@ class Week(models.Model):
         return self.name
     
 class LessonNumber(models.Model):
-    number = models.IntegerField(unique=True)
+    pair_number = models.CharField(max_length=5, unique=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
 
     def __str__(self):
-        return f"{self.number} - ({self.start_time} - {self.end_time})"
+        return f"{self.pair_number} - ({self.start_time} - {self.end_time})"
     
 class Room(models.Model):
     name = models.CharField(max_length=50, unique=True)
