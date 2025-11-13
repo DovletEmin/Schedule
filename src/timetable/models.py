@@ -1,82 +1,88 @@
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 
 class Faculty(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=200, unique=True)
 
-    def __str__(self):
-        return self.name
-    
+    def __str__(self): return self.name
+
 
 class Course(models.Model):
-    number = models.IntegerField()
-    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    number = models.PositiveSmallIntegerField()
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name='courses')
 
-    def __str__(self):
-        return f"{self.faculty} {self.number}"
+    class Meta: unique_together = (('number', 'faculty'),)
     
+    def __str__(self): return f"{self.faculty.name} — {self.number} курс"
+
+
 class Group(models.Model):
     name = models.CharField(max_length=50)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.name} {self.course}"
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='groups')
     
+    class Meta: unique_together = (('name', 'course'),)
+    
+    def __str__(self): return f"{self.course} / {self.name}"
+
+
 class Teacher(models.Model):
-    full_name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.full_name
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(blank=True, null=True)
     
-class Subject(models.Model):
-    name = models.CharField(max_length=100)
+    def __str__(self): return f"{self.last_name} {self.first_name}"
 
-    def __str__(self):
-        return self.name
-    
+
+class Week(models.Model):
+    name = models.CharField(max_length=50, help_text='Чётная / Нечётная или 1 неделя')
+
+    def __str__(self): return self.name
+
+
 class Day(models.Model):
     name = models.CharField(max_length=20, unique=True)
-
-    def __str__(self):
-        return self.name
+    order = models.PositiveSmallIntegerField(default=0)
     
-class Week(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
+    class Meta: ordering = ['order']
     
+    def __str__(self): return self.name
+
+
 class LessonNumber(models.Model):
-    pair_number = models.CharField(max_length=5, unique=True)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    number = models.PositiveSmallIntegerField(unique=True)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+   
+    def __str__(self): return str(self.number)
 
-    def __str__(self):
-        return f"{self.pair_number} - ({self.start_time} - {self.end_time})"
+
+class LessonType(models.Model):
+    name = models.CharField(max_length=50)
     
-class Room(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    def __str__(self): return self.name
 
-    def __str__(self):
-        return self.name
+
+class Subject(models.Model):
+    name = models.CharField(max_length=200, unique=True)
     
-class Schedule(models.Model):
-    class LessonTypeChoices(models.TextChoices):
-        LECTURE = 'LEC', _("Umumy")
-        PRACTICE = 'PRA', _('Amaly')
+    def __str__(self): return self.name
 
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    day = models.ForeignKey(Day, on_delete=models.PROTECT)  
+
+class TimetableEntry(models.Model):
     week = models.ForeignKey(Week, on_delete=models.PROTECT)
+    day = models.ForeignKey(Day, on_delete=models.PROTECT)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
     lesson_number = models.ForeignKey(LessonNumber, on_delete=models.PROTECT)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    lesson_type = models.CharField(max_length=3, choices=LessonTypeChoices.choices)
+    teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True)
+    lesson_type = models.ForeignKey(LessonType, on_delete=models.PROTECT)
+    room = models.CharField(max_length=50, blank=True)
+
 
     class Meta:
-        unique_together = ['group', 'day', 'week', 'lesson_number']
+        unique_together = (('week', 'day', 'group', 'lesson_number'),)
+        ordering = ['week__id', 'day__order', 'lesson_number__number']
+
 
     def __str__(self):
-        return f"{self.group} - {self.day} - {self.lesson_number} - {self.subject} - ({self.room})"
+        return f"{self.group} | {self.week} | {self.day} #{self.lesson_number} — {self.subject}"
