@@ -4,6 +4,9 @@ from django.db import models
 class Faculty(models.Model):
     name = models.CharField(max_length=100)
 
+    class Meta:
+        verbose_name_plural = "Faculties"
+
     def __str__(self): 
         return self.name
 
@@ -103,6 +106,7 @@ class TimetableEntry(models.Model):
     class Meta:
         unique_together = (('week', 'day', 'group', 'lesson_number'),)
         ordering = ['week__number', 'day__number', 'lesson_number__number']
+        verbose_name_plural = "Timetable entries"
 
     def __str__(self):
         return f"{self.group} | Week {self.week} | {self.day} #{self.lesson_number} — {self.subject}"
