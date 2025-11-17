@@ -129,7 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Создай папку 'static', если нет
+# STATICFILES_DIRS = [BASE_DIR / 'static']  # Создай папку 'static', если нет
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # Для collectstatic
 
 # Default primary key field type
