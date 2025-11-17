@@ -1,18 +1,41 @@
-from rest_framework import viewsets, filters
-from .models import TimetableEntry, Subject
-from .serializers import TimetableEntrySerializer, SubjectSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+from .models import Week, Day, TimetableEntry
+from .serializers import TimetableEntrySerializer, DayScheduleSerializer
 
 
-class TimetableEntryViewSet(viewsets.ModelViewSet):
-    queryset = TimetableEntry.objects.select_related(
-    'subject', 'teacher', 'group', 'lesson_number', 'lesson_type', 'day', 'week'
-    )
-    serializer_class = TimetableEntrySerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['subject__name', 'teacher__last_name']
-    ordering_fields = ['week', 'day__order', 'lesson_number__number']
+class WeekDayScheduleAPIView(APIView):
+    def get(self, request, week_number, day_name):
+        # 1. Проверяем неделю
+        week = get_object_or_404(Week, number=week_number)
 
+        # 2. Находим день (регистронезависимо)
+        day = Day.objects.filter(name__iexact=day_name).first()
+        if not day:
+            return Response(
+                {"detail": "Day not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-class SubjectViewSet(viewsets.ModelViewSet):
-    queryset = Subject.objects.all()
-    serializer_class = SubjectSerializer
+        # 3. Получаем расписание
+        lessons = TimetableEntry.objects.filter(
+            week=week,
+            day=day
+        ).order_by(
+            'lesson_number__number'
+        )
+
+        # 4. Сериализация расписания
+        serializer = TimetableEntrySerializer(lessons, many=True)
+
+        # 5. Формируем финальный объект
+        response = {
+            "week": week.number,
+            "day": day.name,
+            "schedule": serializer.data
+        }
+
+        return Response(response)
