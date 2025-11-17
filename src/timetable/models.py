@@ -16,7 +16,7 @@ class Course(models.Model):
         unique_together = (('number', 'faculty'),)
 
     def __str__(self): 
-        return f"{self.faculty.name} — {self.number} курс"
+        return f"{self.faculty.name} — {self.number} Kurs"
 
 
 class Group(models.Model):
@@ -27,7 +27,8 @@ class Group(models.Model):
         unique_together = (('name', 'course'),)
 
     def __str__(self): 
-        return f"{self.course} / {self.name}"
+        return f"{self.name}"
+        # return f"{self.course} / {self.name}"
 
 
 class Teacher(models.Model):
@@ -43,16 +44,27 @@ class Week(models.Model):
     def __str__(self): 
         return str(self.number)
 
+class DayChoices(models.IntegerChoices):
+    MON = 1, 'Duşenbe'
+    TUE = 2, 'Sişenbe'
+    WED = 3, 'Çarşenbe'
+    THU = 4, 'Penşenbe'
+    FRI = 5, 'Anna'
+    SAT = 6, 'Şenbe'
+    SUN = 7, 'Ýekşenbe'
+
 
 class Day(models.Model):
-    name = models.CharField(max_length=20)
-    order = models.PositiveSmallIntegerField(default=1)
+    number = models.PositiveSmallIntegerField(
+        choices=DayChoices.choices,
+        unique=True
+    )
 
     class Meta:
-        ordering = ['order']
+        ordering = ['number']
 
-    def __str__(self): 
-        return self.name
+    def __str__(self):
+        return self.get_number_display()
 
 
 class LessonNumber(models.Model):
@@ -90,7 +102,7 @@ class TimetableEntry(models.Model):
 
     class Meta:
         unique_together = (('week', 'day', 'group', 'lesson_number'),)
-        ordering = ['week__number', 'day__order', 'lesson_number__number']
+        ordering = ['week__number', 'day__number', 'lesson_number__number']
 
     def __str__(self):
         return f"{self.group} | Week {self.week} | {self.day} #{self.lesson_number} — {self.subject}"
