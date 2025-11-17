@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import WeekDayScheduleAPIView
 
 urlpatterns = [
-    path('', views.timetable_view, name='timetable'),
+    path('week/<int:week_number>/<str:day_name>/', WeekDayScheduleAPIView.as_view()),
 ]
