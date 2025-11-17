@@ -61,8 +61,8 @@ class TimetableEntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimetableEntry
-        # fields = '__all__'
-        fields = ['group', 'lesson_type', 'subject', 'teacher']
+        fields = '__all__'
+        # fields = ['group', 'lesson_type', 'subject', 'teacher']
 
 
 
