@@ -61,7 +61,8 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Schedule API',
-    'DESCRIPTION': 'API для расписания уроков (недели, дни, группы, расписание)',
+    'DESCRIPTION': '',
+    # 'DESCRIPTION': 'API для расписания уроков (недели, дни, группы, расписание)',
     'VERSION': '1.0.0',
 }
 
