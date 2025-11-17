@@ -4,38 +4,30 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from .models import Week, Day, TimetableEntry
-from .serializers import TimetableEntrySerializer, DayScheduleSerializer
+from .serializers import TimetableEntrySerializer
 
 
 class WeekDayScheduleAPIView(APIView):
-    def get(self, request, week_number, day_name):
-        # 1. Проверяем неделю
+    def get(self, request, week_number, day_number):
         week = get_object_or_404(Week, number=week_number)
 
-        # 2. Находим день (регистронезависимо)
-        day = Day.objects.filter(name__iexact=day_name).first()
+        day = Day.objects.filter(number=day_number).first()
         if not day:
             return Response(
                 {"detail": "Day not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # 3. Получаем расписание
         lessons = TimetableEntry.objects.filter(
             week=week,
             day=day
-        ).order_by(
-            'lesson_number__number'
-        )
+        ).order_by('lesson_number__number')
 
-        # 4. Сериализация расписания
         serializer = TimetableEntrySerializer(lessons, many=True)
 
-        # 5. Формируем финальный объект
-        response = {
+        return Response({
             "week": week.number,
-            "day": day.name,
+            "day_number": day.number,
+            "day_name": day.get_number_display(),
             "schedule": serializer.data
-        }
-
-        return Response(response)
+        })
