@@ -1,32 +1,36 @@
 from rest_framework import serializers
 from .models import (
-    Faculty, Course, Group, Teacher, Week, Day,
-    LessonNumber, LessonType, Subject, TimetableEntry
+    Week, Day, Group, LessonNumber,
+    LessonType, Subject, Teacher, TimetableEntry
 )
 
 
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teacher
-        fields = ['id', 'name']
+        fields = ['name']
+        # fields = ['id', 'name']
 
 
 class LessonTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonType
-        fields = ['id', 'name']
+        fields = ['name']
+        # fields = ['id', 'name']
 
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ['id', 'name']
+        fields = ['name']
+        # fields = ['id', 'name']
 
 
 class LessonNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonNumber
-        fields = ['id', 'number', 'start_time', 'end_time']
+        fields = ['number']
+        # fields = ['id', 'number', 'start_time', 'end_time']
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -34,39 +38,41 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ['id', 'name', 'course']
+        fields = ['course']
+        # fields = ['id', 'name', 'course']
 
+class DaySerializer(serializers.ModelSerializer):
+    number_display = serializers.CharField(source='get_number_display', read_only=True)
+
+    class Meta:
+        model = Day
+        fields = ['number_display']
+        # fields = ['id', 'number', 'number_display']
+        read_only_fields = ['number_display']
 
 class TimetableEntrySerializer(serializers.ModelSerializer):
-    lesson_number = LessonNumberSerializer()
-    subject = SubjectSerializer()
-    teacher = TeacherSerializer()
-    lesson_type = LessonTypeSerializer()
-    group = GroupSerializer()
+    # week = serializers.StringRelatedField()
+    # day = DaySerializer()
+    group = serializers.StringRelatedField()
+    # lesson_number = serializers.StringRelatedField()
+    lesson_type = serializers.StringRelatedField()
+    subject = serializers.StringRelatedField()
+    teacher = serializers.StringRelatedField()
 
     class Meta:
         model = TimetableEntry
-        fields = [
-            'id',
-            'lesson_number',
-            'subject',
-            'lesson_type',
-            'teacher',
-            'group',
-            'room'
-        ]
+        # fields = '__all__'
+        fields = ['group', 'lesson_type', 'subject', 'teacher']
 
 
-class DaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Day
-        fields = ['id', 'name', 'order']
+
 
 
 class WeekSerializer(serializers.ModelSerializer):
     class Meta:
         model = Week
-        fields = ['id', 'number']
+        fields = ['number']
+        # fields = ['id', 'number']
 
 
 class DayScheduleSerializer(serializers.Serializer):
