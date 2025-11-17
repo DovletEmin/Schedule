@@ -33,8 +33,12 @@ class WeekAdmin(admin.ModelAdmin):
 
 @admin.register(Day)
 class DayAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
+    list_display = ('number', 'day_name')
+
+    def day_name(self, obj):
+        return obj.get_number_display()
+
+    day_name.short_description = 'Название дня'
 
 
 @admin.register(LessonNumber)
