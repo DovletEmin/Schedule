@@ -36,6 +36,22 @@ class WeekDayScheduleAPIView(APIView):
         })
     
 
+
+class WeekScheduleAPIView(APIView):
+    def get(self, request, week_number):
+        week = get_object_or_404(Week, number=week_number)
+
+        lessons = TimetableEntry.objects.filter(
+            week=week,
+        ).order_by('lesson_number__number')
+
+        serializer = TimetableEntrySerializer(lessons, many=True)
+
+        return Response({
+            "week": week.number,
+            "schedule": serializer.data
+        })
+
     
 class TimetableSearchAPIView(ListAPIView):
     queryset = TimetableEntry.objects.select_related(
