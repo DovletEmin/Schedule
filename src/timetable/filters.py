@@ -10,7 +10,7 @@ class TimetableEntryFilter(django_filters.FilterSet):
     group_id = django_filters.NumberFilter(field_name="group__id")
     faculty_id = django_filters.NumberFilter(field_name="group__course__faculty__id")
     course_id = django_filters.NumberFilter(field_name="group__course__id")
-    
+
     # Filter by name/number (for text search)
     teacher = django_filters.CharFilter(
         field_name="teacher__name", lookup_expr="icontains"

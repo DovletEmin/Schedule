@@ -6,15 +6,15 @@
     <div class="col-12">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="bi bi-filter"></i> Süzgüçler</h5>
+                <h5 class="mb-0"><i class="bi bi-filter"></i> Filtr</h5>
             </div>
             <div class="card-body">
                 <form method="get" id="filterForm">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label for="faculty" class="form-label">Fakultet</label>
-                            <select name="faculty" id="faculty" class="form-select">
-                                <option value="">Ählisini</option>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-2">
+                            <label for="faculty" class="form-label form-label-sm">Fakultet</label>
+                            <select name="faculty" id="faculty" class="form-select form-select-sm">
+                                <option value="">Ähli</option>
                                 {% for faculty in faculties %}
                                     <option value="{{ faculty.id }}" {% if faculty.id|stringformat:"s" == selected_faculty %}selected{% endif %}>
                                         {{ faculty.name }}
@@ -22,21 +22,23 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="course" class="form-label">Kurs</label>
-                            <select name="course" id="course" class="form-select">
-                                <option value="">Ählisini</option>
-                                {% for course in courses %}
-                                    <option value="{{ course.id }}" {% if course.id|stringformat:"s" == selected_course %}selected{% endif %}>
-                                        {{ course.number }} Kurs
-                                    </option>
-                                {% endfor %}
+                        <div class="col-md-2">
+                            <label for="course" class="form-label form-label-sm">Kurs</label>
+                            <select name="course" id="course" class="form-select form-select-sm" {% if not selected_faculty %}disabled{% endif %}>
+                                <option value="">Ähli</option>
+                                {% if selected_faculty %}
+                                    {% for course in courses %}
+                                        <option value="{{ course.id }}" {% if course.id|stringformat:"s" == selected_course %}selected{% endif %}>
+                                            {{ course.number }} Kurs
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="teacher" class="form-label">Mugallym</label>
-                            <select name="teacher" id="teacher" class="form-select">
-                                <option value="">Ählisini</option>
+                        <div class="col-md-2">
+                            <label for="teacher" class="form-label form-label-sm">Mugallym</label>
+                            <select name="teacher" id="teacher" class="form-select form-select-sm">
+                                <option value="">Ähli</option>
                                 {% for teacher in teachers %}
                                     <option value="{{ teacher.id }}" {% if teacher.id|stringformat:"s" == selected_teacher %}selected{% endif %}>
                                         {{ teacher.name }}
@@ -44,23 +46,10 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="day" class="form-label">Gün</label>
-                            <select name="day" id="day" class="form-select">
-                                <option value="">Ählisini</option>
-                                {% for day in days %}
-                                    <option value="{{ day.id }}" {% if day.id|stringformat:"s" == selected_day %}selected{% endif %}>
-                                        {{ day.get_number_display }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-3">
-                            <label for="week" class="form-label">Hepde</label>
-                            <select name="week" id="week" class="form-select">
-                                <option value="">Ählisini</option>
+                        <div class="col-md-2">
+                            <label for="week" class="form-label form-label-sm">Hepde</label>
+                            <select name="week" id="week" class="form-select form-select-sm">
+                                <option value="">Ähli</option>
                                 {% for week in weeks %}
                                     <option value="{{ week.id }}" {% if week.id|stringformat:"s" == selected_week %}selected{% endif %}>
                                         {{ week.number }} Hepde
@@ -68,16 +57,21 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-9">
-                            <label class="form-label">&nbsp;</label>
-                            <div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> Gözle
-                                </button>
-                                <a href="{% url 'timetable_grid' %}" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Täzele
-                                </a>
-                            </div>
+                        <div class="col-md-2">
+                            <label for="day" class="form-label form-label-sm">Gün</label>
+                            <select name="day" id="day" class="form-select form-select-sm">
+                                <option value="">Ähli</option>
+                                {% for day in days %}
+                                    <option value="{{ day.id }}" {% if day.id|stringformat:"s" == selected_day %}selected{% endif %}>
+                                        {{ day.get_number_display }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{% url 'timetable_grid' %}" class="btn btn-secondary btn-sm w-100">
+                                <i class="bi bi-arrow-counterclockwise"></i> Ýatyrmak
+                            </a>
                         </div>
                     </div>
                 </form>
@@ -94,7 +88,7 @@
                 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-0">
-                            <i class="bi bi-calendar-week"></i> 
+                            <!-- <i class="bi bi-calendar-week"></i>  -->
                             {% if selected_week_obj %}
                                 {{ selected_week_obj.number }} - Hepde
                             {% else %}
@@ -105,10 +99,11 @@
                                 {% endif %}
                             {% endif %}
                         </h5>
-                        <div class="mt-1">
-                            <strong>{{ course_data.course.faculty.name }} - {{ course_data.course.number }} Kurs</strong><br>
-                            <!-- <small>Topar: {{ course_data.groups|join:", " }}</small> -->
-                        </div>
+                    </div>
+                    <div class="flex-grow-1 text-center">
+                        <h5 class="mb-0">
+                            <strong>{{ course_data.course.faculty.name }} - {{ course_data.course.number }} Kurs</strong>
+                        </h5>
                     </div>
                     <!-- <button onclick="window.print()" class="btn btn-light btn-sm">
                         <i class="bi bi-printer"></i> Çap et
@@ -160,7 +155,7 @@
                                                             {{ entries.room|default:"-" }}
                                                         </td>
                                                     {% else %}
-                                                        {# Практика - отдельные ячейки для каждой группы #}
+                                                        {# Практика - всегда 2 группы (даже если одна пустая) #}
                                                         {% for group_lesson in entries.group_lessons %}
                                                             <td class="subject-cell practice-subject">
                                                                 <div class="subject-name">{{ group_lesson.subject }}</div>
@@ -172,6 +167,15 @@
                                                                 {{ group_lesson.room|default:"-" }}
                                                             </td>
                                                         {% endfor %}
+                                                        {# Если только 1 группа, добавляем пустые ячейки #}
+                                                        {% if entries.group_lessons|length == 1 %}
+                                                            <td class="subject-cell empty-cell">
+                                                                <div class="empty-label">-</div>
+                                                            </td>
+                                                            <td class="room-cell empty-cell">
+                                                                <div class="empty-label">-</div>
+                                                            </td>
+                                                        {% endif %}
                                                     {% endif %}
                                                 </tr>
                                                 {% endwith %}
@@ -203,8 +207,22 @@
 
 {% block extra_js %}
 <script>
-    document.getElementById('faculty').addEventListener('change', function() {
-        document.getElementById('filterForm').submit();
+    // Автоматическая фильтрация при изменении любого фильтра
+    const filterSelects = ['faculty', 'course', 'teacher', 'week', 'day'];
+    filterSelects.forEach(function(selectId) {
+        const element = document.getElementById(selectId);
+        if (element) {
+            element.addEventListener('change', function() {
+                // Clear course selection when faculty changes
+                if (selectId === 'faculty') {
+                    const courseSelect = document.getElementById('course');
+                    if (courseSelect) {
+                        courseSelect.value = '';
+                    }
+                }
+                document.getElementById('filterForm').submit();
+            });
+        }
     });
 </script>
 {% endblock %}
