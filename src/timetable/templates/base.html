@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Okuw tertibi{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=5">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'timetable_grid' %}">
+                <i class="bi bi-calendar3"></i> Okuw tertibi
+            </a>
+            <div class="d-flex">
+                <a href="{% url 'timetable_grid' %}" class="btn btn-outline-light btn-sm me-2">
+                    <i class="bi bi-grid-3x3-gap"></i> Tertip (Grid)
+                </a>
+                <a href="{% url 'timetable_view' %}" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-list-ul"></i> Sanaw (List)
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
