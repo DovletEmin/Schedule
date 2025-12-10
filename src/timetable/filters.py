@@ -3,6 +3,15 @@ from .models import TimetableEntry
 
 
 class TimetableEntryFilter(django_filters.FilterSet):
+    # Filter by ID
+    teacher_id = django_filters.NumberFilter(field_name="teacher__id")
+    week_id = django_filters.NumberFilter(field_name="week__id")
+    day_id = django_filters.NumberFilter(field_name="day__id")
+    group_id = django_filters.NumberFilter(field_name="group__id")
+    faculty_id = django_filters.NumberFilter(field_name="group__course__faculty__id")
+    course_id = django_filters.NumberFilter(field_name="group__course__id")
+    
+    # Filter by name/number (for text search)
     teacher = django_filters.CharFilter(
         field_name="teacher__name", lookup_expr="icontains"
     )
@@ -19,10 +28,16 @@ class TimetableEntryFilter(django_filters.FilterSet):
         model = TimetableEntry
         fields = [
             "teacher",
+            "teacher_id",
             "week",
+            "week_id",
             "day",
+            "day_id",
             "group",
+            "group_id",
             "lesson_number",
             "faculty",
+            "faculty_id",
             "course",
+            "course_id",
         ]

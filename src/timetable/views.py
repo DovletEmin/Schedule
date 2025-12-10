@@ -150,33 +150,45 @@ def timetable_grid(request):
     """Grid view of timetable - Excel-like format with days as rows and lesson numbers as columns"""
     # Get all filter options
     faculties = Faculty.objects.all().order_by("name")
+    courses = Course.objects.all().order_by("number")
+    teachers = Teacher.objects.all().order_by("name")
     weeks = Week.objects.all().order_by("number")
     days = Day.objects.all().order_by("number")
 
     # Get selected filters
     selected_faculty = request.GET.get("faculty", "")
     selected_course = request.GET.get("course", "")
+    selected_teacher = request.GET.get("teacher", "")
     selected_week = request.GET.get("week", "")
+    selected_day = request.GET.get("day", "")
 
-    # Get courses for selected faculty or all
-    courses = (
+    # Filter courses based on selected faculty
+    if selected_faculty:
+        courses = courses.filter(faculty_id=selected_faculty)
+
+    # Get courses for query
+    courses_query = (
         Course.objects.select_related("faculty")
         .all()
         .order_by("faculty__name", "number")
     )
     if selected_faculty:
-        courses = courses.filter(faculty_id=selected_faculty)
+        courses_query = courses_query.filter(faculty_id=selected_faculty)
     if selected_course:
-        courses = courses.filter(id=selected_course)
+        courses_query = courses_query.filter(id=selected_course)
 
     selected_week_obj = None
     if selected_week:
         selected_week_obj = Week.objects.get(id=selected_week)
 
+    selected_day_obj = None
+    if selected_day:
+        selected_day_obj = Day.objects.get(id=selected_day)
+
     # Build timetable data for each course
     courses_data = []
 
-    for course in courses:
+    for course in courses_query:
         # Get all groups for this course
         groups = Group.objects.filter(course=course).order_by("name")
 
@@ -190,8 +202,15 @@ def timetable_grid(request):
             "week", "day", "group", "lesson_number", "subject", "teacher", "lesson_type"
         ).filter(group__course=course)
 
+        # Apply filters
         if selected_week:
             entries_query = entries_query.filter(week_id=selected_week)
+
+        if selected_teacher:
+            entries_query = entries_query.filter(teacher_id=selected_teacher)
+
+        if selected_day:
+            entries_query = entries_query.filter(day_id=selected_day)
 
         entries = entries_query.order_by(
             "day__number", "lesson_number__number", "group__name"
@@ -207,8 +226,8 @@ def timetable_grid(request):
         ).order_by("number")
 
         # Debug output
-        print(f"\n=== Course: {course.faculty.name} — {course.number} Kurs ===")
-        print(f"Lesson number objects: {[ln.number for ln in lesson_number_objs]}")
+        # print(f"\n=== Course: {course.faculty.name} — {course.number} Kurs ===")
+        # print(f"Lesson number objects: {[ln.number for ln in lesson_number_objs]}")
 
         # Organize data: day -> lesson_number -> entries
         timetable_data = {}
@@ -221,14 +240,14 @@ def timetable_grid(request):
 
             lesson_data = {}
 
-            print(f"  Day: {day.get_number_display()}")
+            # print(f"  Day: {day.get_number_display()}")
 
             for lesson_num_obj in lesson_number_objs:
                 lesson_entries = day_entries.filter(lesson_number=lesson_num_obj)
 
-                print(
-                    f"    Lesson #{lesson_num_obj.number}: {lesson_entries.count()} entries"
-                )
+                # print(
+                #     f"    Lesson #{lesson_num_obj.number}: {lesson_entries.count()} entries"
+                # )
 
                 if lesson_entries.exists():
                     # Check if all entries have the same subject and lesson type
@@ -258,7 +277,7 @@ def timetable_grid(request):
                             "room": first_entry.room or None,
                             "groups": [e.group.name for e in lesson_entries],
                         }
-                        print(f"      -> Lecture: {first_entry.subject.name}")
+                        # print(f"      -> Lecture: {first_entry.subject.name}")
                     else:
                         # Practice or different subjects - show all in one row with horizontal division
                         lesson_data[lesson_num_obj.number] = {
@@ -274,9 +293,9 @@ def timetable_grid(request):
                                 for e in lesson_entries
                             ],
                         }
-                        print(
-                            f"      -> Practice with {len(lesson_entries)} groups: {[e.subject.name for e in lesson_entries]}"
-                        )
+                        # print(
+                        #     f"      -> Practice with {len(lesson_entries)} groups: {[e.subject.name for e in lesson_entries]}"
+                        # )
 
             if lesson_data:
                 timetable_data[day.id] = {
@@ -294,37 +313,42 @@ def timetable_grid(request):
             )
             week_numbers = list(course_weeks)
 
-            print(
-                f"\n  Передаем в шаблон lesson_numbers: {[ln.number for ln in lesson_number_objs]}"
-            )
-            print(f"  Всего timetable_data дней: {len(timetable_data)}")
-            for day_id, day_info in timetable_data.items():
-                print(
-                    f"    День {day_info['day_name']}: ключи уроков = {list(day_info['lessons'].keys())}"
-                )
-                for lesson_key, lesson_val in day_info["lessons"].items():
-                    print(
-                        f"      Урок #{lesson_key}: is_lecture={lesson_val.get('is_lecture')}, group_lessons count={len(lesson_val.get('group_lessons', []))} or subject={lesson_val.get('subject')}"
-                    )
+            # print(
+            #     f"\n  Передаем в шаблон lesson_numbers: {[ln.number for ln in lesson_number_objs]}"
+            # )
+            # print(f"  Всего timetable_data дней: {len(timetable_data)}")
+            # for day_id, day_info in timetable_data.items():
+            #     print(
+            #         f"    День {day_info['day_name']}: ключи уроков = {list(day_info['lessons'].keys())}"
+            #     )
+            #     for lesson_key, lesson_val in day_info["lessons"].items():
+            #         print(
+            #             f"      Урок #{lesson_key}: is_lecture={lesson_val.get('is_lecture')}, group_lessons count={len(lesson_val.get('group_lessons', []))} or subject={lesson_val.get('subject')}"
+            #         )
 
             courses_data.append(
                 {
                     "course": course,
                     "groups": group_names,
-                    "lesson_numbers": lesson_number_objs,
                     "timetable": timetable_data,
+                    "lesson_numbers": lesson_number_objs,
                     "week_numbers": week_numbers,
                 }
             )
 
     context = {
         "faculties": faculties,
+        "courses": courses,
+        "teachers": teachers,
         "weeks": weeks,
         "days": days,
         "selected_faculty": selected_faculty,
         "selected_course": selected_course,
+        "selected_teacher": selected_teacher,
         "selected_week": selected_week,
+        "selected_day": selected_day,
         "selected_week_obj": selected_week_obj,
+        "selected_day_obj": selected_day_obj,
         "courses_data": courses_data,
     }
 
