@@ -1,5 +1,17 @@
 import pytest
-from timetable.models import Faculty, Course, Group, Week, Day, Teacher, LessonNumber, LessonType, Subject, TimetableEntry
+from timetable.models import (
+    Faculty,
+    Course,
+    Group,
+    Week,
+    Day,
+    Teacher,
+    LessonNumber,
+    LessonType,
+    Subject,
+    TimetableEntry,
+)
+
 
 @pytest.mark.django_db
 def test_create_timetable_entry():
@@ -12,7 +24,7 @@ def test_create_timetable_entry():
     lesson_number = LessonNumber.objects.create(number=1)
     lesson_type = LessonType.objects.create(name="Lecture")
     subject = Subject.objects.create(name="Math")
-    
+
     entry = TimetableEntry.objects.create(
         week=week,
         day=day,
@@ -21,7 +33,10 @@ def test_create_timetable_entry():
         subject=subject,
         teacher=teacher,
         lesson_type=lesson_type,
-        room="101"
+        room="101",
     )
-    
-    assert str(entry) == f"{group} | Week {week.number} | {day} #{lesson_number} — {subject}"
+
+    assert (
+        str(entry)
+        == f"{group} | Week {week.number} | {day} #{lesson_number} — {subject}"
+    )

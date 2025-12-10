@@ -1,11 +1,23 @@
 import pytest
 from rest_framework.test import APIClient
-from timetable.models import Faculty, Course, Group, Week, Day, Teacher, LessonNumber, LessonType, Subject, TimetableEntry
+from timetable.models import (
+    Faculty,
+    Course,
+    Group,
+    Week,
+    Day,
+    Teacher,
+    LessonNumber,
+    LessonType,
+    Subject,
+    TimetableEntry,
+)
+
 
 @pytest.mark.django_db
 def test_week_day_schedule_api():
     client = APIClient()
-    
+
     faculty = Faculty.objects.create(name="Informatics")
     course = Course.objects.create(number=1, faculty=faculty)
     group = Group.objects.create(name="A", course=course)
@@ -15,7 +27,7 @@ def test_week_day_schedule_api():
     lesson_number = LessonNumber.objects.create(number=1)
     lesson_type = LessonType.objects.create(name="Lecture")
     subject = Subject.objects.create(name="Math")
-    
+
     TimetableEntry.objects.create(
         week=week,
         day=day,
@@ -24,11 +36,11 @@ def test_week_day_schedule_api():
         subject=subject,
         teacher=teacher,
         lesson_type=lesson_type,
-        room="101"
+        room="101",
     )
-    
+
     response = client.get(f"/api/{week.number}/{day.number}/")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["week"] == 1
@@ -40,7 +52,7 @@ def test_week_day_schedule_api():
 @pytest.mark.django_db
 def test_timetable_search_api():
     client = APIClient()
-    
+
     faculty = Faculty.objects.create(name="Informatics")
     course = Course.objects.create(number=1, faculty=faculty)
     group = Group.objects.create(name="A", course=course)
@@ -50,7 +62,7 @@ def test_timetable_search_api():
     lesson_number = LessonNumber.objects.create(number=1)
     lesson_type = LessonType.objects.create(name="Lecture")
     subject = Subject.objects.create(name="Math")
-    
+
     TimetableEntry.objects.create(
         week=week,
         day=day,
@@ -59,9 +71,9 @@ def test_timetable_search_api():
         subject=subject,
         teacher=teacher,
         lesson_type=lesson_type,
-        room="101"
+        room="101",
     )
-    
+
     response = client.get("/api/search/?teacher=Ali")
     assert response.status_code == 200
     data = response.json()

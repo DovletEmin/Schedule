@@ -1,35 +1,41 @@
 from rest_framework import serializers
 from .models import (
-    Week, Day, Group, LessonNumber,
-    LessonType, Subject, Teacher, TimetableEntry
+    Week,
+    Day,
+    Group,
+    LessonNumber,
+    LessonType,
+    Subject,
+    Teacher,
+    TimetableEntry,
 )
 
 
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teacher
-        fields = ['name']
+        fields = ["name"]
         # fields = ['id', 'name']
 
 
 class LessonTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonType
-        fields = ['name']
+        fields = ["name"]
         # fields = ['id', 'name']
 
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ['name']
+        fields = ["name"]
         # fields = ['id', 'name']
 
 
 class LessonNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonNumber
-        fields = ['number']
+        fields = ["number"]
         # fields = ['id', 'number', 'start_time', 'end_time']
 
 
@@ -38,17 +44,19 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ['course']
+        fields = ["course"]
         # fields = ['id', 'name', 'course']
 
+
 class DaySerializer(serializers.ModelSerializer):
-    number_display = serializers.CharField(source='get_number_display', read_only=True)
+    number_display = serializers.CharField(source="get_number_display", read_only=True)
 
     class Meta:
         model = Day
-        fields = ['number_display']
+        fields = ["number_display"]
         # fields = ['id', 'number', 'number_display']
-        read_only_fields = ['number_display']
+        read_only_fields = ["number_display"]
+
 
 class TimetableEntrySerializer(serializers.ModelSerializer):
     # week = serializers.StringRelatedField()
@@ -61,17 +69,14 @@ class TimetableEntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimetableEntry
-        fields = '__all__'
+        fields = "__all__"
         # fields = ['group', 'lesson_type', 'subject', 'teacher']
-
-
-
 
 
 class WeekSerializer(serializers.ModelSerializer):
     class Meta:
         model = Week
-        fields = ['number']
+        fields = ["number"]
         # fields = ['id', 'number']
 
 
