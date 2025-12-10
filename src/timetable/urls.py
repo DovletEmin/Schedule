@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import TimetableSearchAPIView, WeekDayScheduleAPIView, WeekScheduleAPIView
+from .views import TimetableSearchAPIView, WeekDayScheduleAPIView, WeekScheduleAPIView, timetable_view, timetable_grid
 
 urlpatterns = [
+    # API endpoints
     path(
         '<int:week_number>/<int:day_number>/',
         WeekDayScheduleAPIView.as_view(),
