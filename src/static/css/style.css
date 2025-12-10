@@ -1,0 +1,430 @@
+body {
+    background-color: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    padding: 1rem 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.form-select, .form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.btn {
+    border-radius: 6px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.badge {
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.875rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .card-header:first-child {
+        page-break-before: avoid;
+    }
+    
+    .btn, .navbar {
+        display: none;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+    }
+}
+
+/* Timetable Grid Styles - Vertical Layout (like image 2.png) */
+.timetable-grid-vertical {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.timetable-grid-vertical thead th {
+    background-color: #f8f9fa;
+    border: 2px solid #495057;
+    padding: 10px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.header-empty {
+    background-color: #ffffff;
+    border: none;
+}
+
+.group-header {
+    background-color: #e9ecef;
+    border: 2px solid #495057;
+}
+
+.timetable-grid-vertical .lesson-row {
+    border: 2px solid #495057;
+}
+
+.timetable-grid-vertical .day-cell {
+    background-color: #e9ecef;
+    border: 2px solid #495057;
+    padding: 10px 5px;
+    text-align: center;
+    vertical-align: middle;
+    width: 40px;
+    font-weight: 600;
+}
+
+.day-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #212529;
+    letter-spacing: 2px;
+}
+
+.timetable-grid-vertical .lesson-number-cell {
+    background-color: #f8f9fa;
+    border: 2px solid #495057;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+    width: 60px;
+    font-weight: 600;
+}
+
+.lesson-time {
+    font-size: 0.7rem;
+    color: #6c757d;
+    margin-top: 4px;
+    line-height: 1.2;
+}
+
+/* Subject and Room cells */
+.subject-cell, .room-cell {
+    border: 2px solid #495057;
+    padding: 10px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.subject-cell {
+    min-width: 600px;
+}
+
+.subject-cell-container, .room-cell-container {
+    padding: 0;
+    border: none;
+}
+
+/* Lecture cells - solid line */
+.lecture-subject {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-left: 5px solid #2196F3;
+}
+
+.lecture-room {
+    background-color: #e3f2fd;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem;
+    width: 80px;
+}
+
+/* Practice cells - one combined cell with HORIZONTAL division */
+.practice-combined-wrapper {
+    padding: 0;
+    border: 2px solid #495057;
+}
+
+.practice-inner-container {
+    display: flex;
+    flex-direction: row; /* Группы располагаются горизонтально */
+    width: 100%;
+    height: 100%;
+    min-height: 60px;
+    border-left: 5px solid #2196F3;
+}
+
+/* Каждая группа занимает равную часть по горизонтали */
+.practice-group-block {
+    flex: 1;
+    display: flex;
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border-left: 5px solid #FF9800;
+}
+
+.practice-group-block:not(:first-child) {
+    border-left: 3px solid #FF9800; /* Разделитель между группами */
+}
+
+.practice-group-content {
+    flex: 1;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.practice-group-room {
+    width: 80px;
+    background-color: #ffe0b2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: 600;
+    border-left: 1px dashed #FF9800;
+    padding: 5px;
+}
+
+/* Content styling */
+.subject-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #212529;
+    margin-bottom: 6px;
+}
+
+.teacher-names {
+    font-size: 0.95rem;
+    color: #495057;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.group-label {
+    margin-top: 4px;
+}
+
+.group-label .badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+}
+
+.course-card {
+    page-break-after: always;
+}
+
+.course-card:last-child {
+    page-break-after: auto;
+}
+
+/* Lecture Block - Single merged block for all groups */
+.lecture-block {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-left: 4px solid #2196F3;
+    padding: 8px;
+    min-height: 70px;
+}
+
+.lecture-block .subject-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #0d47a1;
+    margin-bottom: 5px;
+}
+
+.lecture-block .lesson-info {
+    margin-bottom: 5px;
+}
+
+.lecture-block .groups-list {
+    margin-top: 5px;
+}
+
+.lecture-block .groups-list .badge {
+    margin-right: 3px;
+    margin-bottom: 2px;
+}
+
+/* Practice cells - separate columns for each group */
+.practice-subject {
+    background-color: #ffe0b2;
+    border-left: 4px solid #FF9800;
+    padding: 10px;
+    vertical-align: middle;
+}
+/* Practice room cell */
+.practice-room {
+    background-color: #ffe0b2;
+    width: 80px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem;
+    vertical-align: middle;
+}   
+
+/* Practice Blocks - Separated blocks for each group */
+.lesson-groups {
+    display: flex;
+    flex-direction: column;
+}
+
+.practice-block {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border-left: 4px solid #FF9800;
+    padding: 6px;
+    min-height: 35px;
+}
+
+.practice-block:not(:last-child) {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.practice-block .group-badge {
+    margin-bottom: 3px;
+}
+
+.practice-block .subject-name {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #e65100;
+    margin-bottom: 3px;
+}
+
+.practice-block .lesson-info {
+    font-size: 0.75rem;
+}
+
+/* Common lesson info styles */
+.lesson-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.teacher-name {
+    font-size: 0.75rem;
+    color: #495057;
+    font-style: italic;
+}
+
+.room-number {
+    font-size: 0.75rem;
+    color: #6c757d;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Badge adjustments for grid */
+.timetable-grid .badge {
+    font-size: 0.7rem;
+    padding: 2px 5px;
+}
+
+/* Print styles for grid */
+@media print {
+    .timetable-grid-vertical {
+        font-size: 0.75rem;
+    }
+    
+    .day-vertical {
+        font-size: 1rem;
+    }
+    
+    .subject-name {
+        font-size: 0.8rem;
+    }
+    
+    .teacher-names {
+        font-size: 0.7rem;
+    }
+    
+    .course-card {
+        page-break-inside: avoid;
+    }
+    
+    .btn {
+        display: none;
+    }
+}
