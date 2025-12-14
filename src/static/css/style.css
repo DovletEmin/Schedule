@@ -1,21 +1,101 @@
-body {
-    background-color: #f5f5f5;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+/* Custom gentle red button */
+
+/* Кастомный success для card-header */
+.card-header.bg-success {
+    background-color: var(--success-color) !important;
+    color: var(--white) !important;
+}
+/* Кастомный цвет для фильтра (card-header.bg-primary) */
+.card-header.bg-primary {
+    background-color: var(--primary-color) !important;
+    color: var(--white) !important;
 }
 
+:root {
+    --color-primary-light: #7ebbda;     /* Светлый акцент для выделения */
+    --color-accent: #7ebbda;            /* Вторичный акцент (иконки, badge) */
+    --color-accent-light: #ffffff;      /* Очень светлый голубой фон */
+    --color-success: #7ebbda;           /* Успех (свежий зелёный) */
+    --color-warning: #f9e79f;           /* Желтый для предупреждений */
+    --color-info: #7ebbdA;              /* Информационный */
+    --color-bg: #e6f5fa;                /* Общий фон страницы */
+    --color-card: #ffffff;              /* Фон карточек */
+    --color-hover: #e0f2fc;             /* Hover для элементов */
+    --color-empty-cell: #ffffff;        /* Пустые ячейки */
+    --color-lecture: #e3e5e7;           /* Лекции (светло-голубой) */
+    --practice-bg: #ffffff;             /* Практики (очень светлый) */
+    --color-lecture-room: #e3e5e7;      /* Аудитория лекций (основной) */
+    --color-lecture-room-text: #fff;    /* Текст аудитории лекций */
+    --color-practice-room: #ffffff;     /* Аудитория практик (зелёный) */
+    --color-practice-room-text: #366099;/* Текст аудитории практик */
+    --color-text-primary: #121212;      /* Основной текст */
+    --color-text-secondary: #6f6f6f;    /* Вторичный текст */
+    --color-empty-cell-text: #bfc9ca;   /* Текст пустых ячеек */
+    --color-border: #6f6f6f;            /* Цвет границ */
+    --color-navbar-bg: #7ebbda;         /* Navbar фон */
+    --color-navbar-text: #fff;          /* Navbar текст */
+    --color-navbar-border: #7ebbda;     /* Navbar бордер */
+    --color-navbar-hover: #7ebbda;      /* Navbar hover */
+    --color-white: #fff;
+    --color-black: #000;
+    --color-muted: #bfc9ca;
+    --color-filter-bg: #e6f5fa;
+             /* Фон фильтра */
+    --success-color: var(--color-success);
+    --warning-color: var(--color-warning);
+    --danger-color: var(--color-danger);
+    --info-color: var(--color-info);
+    --bg-color: var(--color-bg);
+    --card-bg: var(--color-card);
+    --hover-bg: var(--color-hover);
+    --empty-cell-bg: var(--color-empty-cell);
+    --lecture-bg: var(--color-lecture);
+    
+    --lecture-room-bg: var(--color-lecture-room);
+    --lecture-room-text: var(--color-lecture-room-text);
+    --practice-room-bg: var(--color-practice-room);
+    /* убрано дублирование, определение выше */
+    --practice-room-text: var(--color-practice-room-text);
+    --text-primary: var(--color-text-primary);
+    --text-secondary: var(--color-text-secondary);
+    --empty-cell-text: var(--color-empty-cell-text);
+    --border-color: var(--color-border);
+    --navbar-bg: var(--color-navbar-bg);
+    --navbar-text: var(--color-navbar-text);
+    --navbar-border: var(--color-navbar-border);
+    --navbar-hover-bg: var(--color-navbar-hover);
+    --white: var(--color-white);
+    --black: var(--color-black);
+    --muted: var(--color-muted);
+}
+
+.card .card-body {
+    background-color: var(--color-filter-bg);
+}
+
+/* Navbar custom styles */
 .navbar {
-    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    background-color: var(--navbar-bg) !important;
+    color: var(--navbar-text) !important;
+    border-bottom: 1px solid var(--navbar-border);
+}
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .navbar-text {
+    color: var(--navbar-text) !important;
+}
+.navbar .nav-link:hover,
+.navbar .navbar-brand:hover {
+    background-color: var(--navbar-hover-bg);
+    color: var(--navbar-text) !important;
 }
 
-.navbar-brand {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
 
 .card {
     border: none;
     border-radius: 10px;
     margin-bottom: 1.5rem;
+    background-color: var(--card-bg);
 }
 
 .card-header {
@@ -32,58 +112,59 @@ body {
 }
 
 .table thead th {
-    background-color: #f8f9fa;
+    background-color: var(--hover-bg);
     font-weight: 600;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
 }
 
 .table tbody tr:hover {
-    background-color: #f8f9fa;
-}
+    background-color: var(--hover-bg);
+    }
+        
 
 .form-label {
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #495057;
+    color: var(--text-primary);
 }
 
 .form-label-sm {
     font-weight: 600;
     margin-bottom: 0.25rem;
-    color: #495057;
+    color: var(--text-primary);
     font-size: 0.875rem;
 }
 
 .form-select, .form-control {
     border-radius: 6px;
-    border: 1px solid #ced4da;
+    /* border: 1px solid var(--border-color); */
+    border: none;
 }
 
 .form-select:focus, .form-control:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-}
-
-.btn {
-    border-radius: 6px;
-    padding: 0.5rem 1.5rem;
-    font-weight: 500;
-}
-
-.btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
 }
 
 .btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
+    background-color: #ff5462;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #ff3c4c;
+    color: #ffffff;
+}
+.btn-secondary:focus,
+.btn-secondary:active {
+    background-color: #ff3c4c !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
 }
 
 .badge {
@@ -135,32 +216,45 @@ body {
     font-size: 0.85rem;
 }
 
+/* Make table respect column widths and allow wrapping to avoid horizontal overflow */
+
+
 .timetable-grid-vertical thead th {
-    background-color: #f8f9fa;
-    border: 2px solid #495057;
+    background-color: var(--hover-bg);
+    border: 1px solid #264653;
     padding: 10px;
     text-align: center;
     font-weight: 700;
     font-size: 1.1rem;
+    color: var(--text-primary);
 }
 
 .header-empty {
-    background-color: #ffffff;
+    background-color: #fff !important;
     border: none;
 }
 
+
 .group-header {
-    background-color: #e9ecef;
-    border: 2px solid #495057;
+    background-color: #fff !important;
+    color: var(--white);
+    border: 1px solid var(--color-success);
 }
+
+
 
 .timetable-grid-vertical .lesson-row {
-    border: 2px solid #495057;
+    border-bottom: 1px solid #264653;
 }
 
+
+
 .timetable-grid-vertical .day-cell {
-    background-color: #e9ecef;
-    border: 2px solid #495057;
+    background-color: var(--card-bg);
+    border-right: 1px solid #264653; /* акцентный бордер между днями */
+    border-top: 1px solid #264653;
+    border-bottom: 1px solid #264653;
+    border-left: 1px solid #264653;
     padding: 10px 5px;
     text-align: center;
     vertical-align: middle;
@@ -173,30 +267,32 @@ body {
     text-orientation: mixed;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #212529;
-    letter-spacing: 2px;
+    color: var(--text-primary);
+    letter-spacing: 1px;
 }
 
+
 .timetable-grid-vertical .lesson-number-cell {
-    background-color: #f8f9fa;
-    border: 2px solid #495057;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
     padding: 8px;
     text-align: center;
     vertical-align: middle;
     width: 60px;
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .lesson-time {
     font-size: 0.7rem;
-    color: #6c757d;
+    color: var(--text-secondary);
     margin-top: 4px;
     line-height: 1.2;
 }
 
 /* Subject and Room cells */
 .subject-cell, .room-cell {
-    border: 2px solid #495057;
+    border: 1px solid var(--border-color);
     padding: 10px;
     vertical-align: middle;
     text-align: center;
@@ -212,22 +308,27 @@ body {
 }
 
 /* Lecture cells - solid line */
+
 .lecture-subject {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    background-color: var(--lecture-bg);
 }
 
 .lecture-room {
-    background-color: #e3f2fd;
+    background-color: var(--lecture-room-bg);
     text-align: center;
     font-weight: 700;
     font-size: 1rem;
-    width: 80px;
+    width: 60px;
+    color: #fff;
+}
+.lecture-subject {
+    background-color: var(--lecture-bg);
 }
 
 /* Practice cells - one combined cell with HORIZONTAL division */
 .practice-combined-wrapper {
     padding: 0;
-    border: 2px solid #495057;
+    border: 1px solid #495057;
 }
 
 .practice-inner-container {
@@ -238,38 +339,50 @@ body {
     min-height: 60px;
 }
 
-/* Каждая группа занимает равную часть по горизонтали */
+
 .practice-group-block {
     flex: 1;
     display: flex;
-    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-}
+    background-color: var(--accent-light);
+    }
 
 .practice-group-block:not(:first-child) {
-    border-left: 3px solid #FF9800; /* Разделитель между группами */
+    border-left: 1px solid var(--accent-color); /* Разделитель между группами */
 }
 
 /* Practice subject cell */
+
+
 .practice-subject {
-    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    background-color: var(--practice-bg);
 }
 
 /* Empty cell styling */
 .empty-cell {
-    background-color: #f8f9fa;
-    color: #adb5bd;
+    background-color: #fff !important;
+    color: var(--text-secondary);
+}
+
+.subject-cell.empty-cell,
+.room-cell.empty-cell {
+    background-color: #fff !important;
+}
+
+td.subject-cell.empty-cell,
+td.room-cell.empty-cell {
+    background-color: #fff !important;
 }
 
 .empty-label {
     font-size: 1.5rem;
-    color: #dee2e6;
+    color: var(--border-color);
     font-weight: 300;
 }
 
 /* Room info inside subject cell */
 .room-info {
     font-size: 0.85rem;
-    color: #6c757d;
+    color: var(--text-secondary);
     font-weight: 600;
     margin-top: 4px;
 }
@@ -284,27 +397,28 @@ body {
 
 .practice-group-room {
     width: 80px;
-    background-color: #ffe0b2;
+    background-color: var(--accent-color);
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     font-weight: 600;
     padding: 5px;
+    color: var(--text-primary);
 }
 
 /* Content styling */
 .subject-name {
     font-weight: 700;
     font-size: 1.05rem;
-    color: #212529;
+    color: var(--text-primary);
     margin-bottom: 6px;
 }
 
 .teacher-names {
     font-size: 0.95rem;
-    color: #495057;
-    font-weight: 700;
+    color: var(--text-secondary);
+    font-weight: 500;
     margin-bottom: 4px;
 }
 
@@ -327,8 +441,8 @@ body {
 
 /* Lecture Block - Single merged block for all groups */
 .lecture-block {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    border-left: 4px solid #2196F3;
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-left: 1px solid var(--primary-color);
     padding: 8px;
     min-height: 70px;
 }
@@ -336,7 +450,7 @@ body {
 .lecture-block .subject-name {
     font-weight: 600;
     font-size: 0.85rem;
-    color: #0d47a1;
+    color: var(--primary-dark);
     margin-bottom: 5px;
 }
 
@@ -353,21 +467,32 @@ body {
     margin-bottom: 2px;
 }
 
+/* Lecture room label inside lecture subject cell */
+.lecture-room-info {
+    margin-top: 6px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
 /* Practice cells - separate columns for each group */
 .practice-subject {
-    background-color: #ffe0b2;
+    background-color: var(--practice-bg);
     padding: 10px;
     vertical-align: middle;
 }
 /* Practice room cell */
+
+
 .practice-room {
-    background-color: #ffe0b2;
+    background-color: var(--practice-room-bg);
     width: 80px;
     text-align: center;
     font-weight: 700;
     font-size: 1rem;
     vertical-align: middle;
-}   
+    color: var(--text-secondary);
+}
 
 /* Practice Blocks - Separated blocks for each group */
 .lesson-groups {
@@ -376,13 +501,13 @@ body {
 }
 
 .practice-block {
-    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    background: linear-gradient(135deg, var(--accent-light) 0%, var(--practice-bg) 100%);
     padding: 6px;
     min-height: 35px;
 }
 
 .practice-block:not(:last-child) {
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .practice-block .group-badge {
@@ -392,7 +517,7 @@ body {
 .practice-block .subject-name {
     font-weight: 600;
     font-size: 0.8rem;
-    color: #e65100;
+    color: var(--accent-color);
     margin-bottom: 3px;
 }
 
@@ -410,13 +535,13 @@ body {
 
 .teacher-name {
     font-size: 0.75rem;
-    color: #495057;
+    color: var(--text-secondary);
     font-style: italic;
 }
 
 .room-number {
     font-size: 0.75rem;
-    color: #6c757d;
+    color: var(--text-secondary);
     background-color: rgba(255, 255, 255, 0.7);
     padding: 2px 5px;
     border-radius: 3px;

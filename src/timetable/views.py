@@ -124,24 +124,68 @@ def timetable_view(request):
     if selected_day:
         entries = entries.filter(day_id=selected_day)
 
-    # Order entries
-    entries = entries.order_by("week__number", "day__number", "lesson_number__number")
-
-    context = {
-        "faculties": faculties,
-        "courses": courses,
-        "groups": groups,
-        "teachers": teachers,
-        "weeks": weeks,
-        "days": days,
-        "entries": entries,
-        "selected_faculty": selected_faculty,
-        "selected_course": selected_course,
-        "selected_group": selected_group,
-        "selected_teacher": selected_teacher,
-        "selected_week": selected_week,
-        "selected_day": selected_day,
-    }
+    # Special handling for "Ahli" (all weeks) filter
+    week1_entries = week2_entries = None
+    if not selected_week or selected_week == "ahli" or selected_week == "0":
+        week1_entries = entries.filter(week__number=1).order_by(
+            "week__number",
+            "group__course__faculty__id",
+            "group__course__number",
+            "group__name",
+            "day__number",
+            "lesson_number__number",
+        )
+        week2_entries = entries.filter(week__number=2).order_by(
+            "week__number",
+            "group__course__faculty__id",
+            "group__course__number",
+            "group__name",
+            "day__number",
+            "lesson_number__number",
+        )
+        context = {
+            "faculties": faculties,
+            "courses": courses,
+            "groups": groups,
+            "teachers": teachers,
+            "weeks": weeks,
+            "days": days,
+            "week1_entries": week1_entries,
+            "week2_entries": week2_entries,
+            "entries": None,
+            "selected_faculty": selected_faculty,
+            "selected_course": selected_course,
+            "selected_group": selected_group,
+            "selected_teacher": selected_teacher,
+            "selected_week": selected_week,
+            "selected_day": selected_day,
+        }
+    else:
+        entries = entries.order_by(
+            "week__number",
+            "group__course__faculty__id",
+            "group__course__number",
+            "group__name",
+            "day__number",
+            "lesson_number__number",
+        )
+        context = {
+            "faculties": faculties,
+            "courses": courses,
+            "groups": groups,
+            "teachers": teachers,
+            "weeks": weeks,
+            "days": days,
+            "entries": entries,
+            "week1_entries": None,
+            "week2_entries": None,
+            "selected_faculty": selected_faculty,
+            "selected_course": selected_course,
+            "selected_group": selected_group,
+            "selected_teacher": selected_teacher,
+            "selected_week": selected_week,
+            "selected_day": selected_day,
+        }
 
     return render(request, "timetable.html", context)
 
@@ -166,6 +210,24 @@ def timetable_grid(request):
     if selected_faculty:
         courses = courses.filter(faculty_id=selected_faculty)
 
+    # Filter teachers based on selected faculty and course (FIXED: filter through timetableentry__group__course)
+    if selected_faculty:
+        teachers = (
+            Teacher.objects.filter(
+                timetableentry__group__course__faculty_id=selected_faculty
+            )
+            .distinct()
+            .order_by("name")
+        )
+    elif selected_course:
+        teachers = (
+            Teacher.objects.filter(timetableentry__group__course_id=selected_course)
+            .distinct()
+            .order_by("name")
+        )
+    else:
+        teachers = Teacher.objects.all().order_by("name")
+
     # Get courses for query
     courses_query = (
         Course.objects.select_related("faculty")
@@ -177,164 +239,228 @@ def timetable_grid(request):
     if selected_course:
         courses_query = courses_query.filter(id=selected_course)
 
+    # If teacher is selected, filter courses that have lessons from this teacher
+    if selected_teacher:
+        courses_with_teacher = (
+            TimetableEntry.objects.filter(teacher_id=selected_teacher)
+            .values_list("group__course_id", flat=True)
+            .distinct()
+        )
+        courses_query = courses_query.filter(id__in=courses_with_teacher)
+
     selected_week_obj = None
     if selected_week:
-        selected_week_obj = Week.objects.get(id=selected_week)
+        try:
+            selected_week_obj = Week.objects.get(id=selected_week)
+        except (Week.DoesNotExist, ValueError):
+            pass
 
     selected_day_obj = None
     if selected_day:
         selected_day_obj = Day.objects.get(id=selected_day)
 
-    # Build timetable data for each course
-    courses_data = []
+    # Разделение по неделям, если выбран "Ahli" или "" (все)
+    week1_courses_data = []
+    week2_courses_data = []
+    all_courses_data = []
 
     for course in courses_query:
-        # Get all groups for this course
         groups = Group.objects.filter(course=course).order_by("name")
-
         if not groups.exists():
             continue
 
         group_names = [g.name for g in groups]
-
-        # Build query for entries
         entries_query = TimetableEntry.objects.select_related(
             "week", "day", "group", "lesson_number", "subject", "teacher", "lesson_type"
-        ).filter(group__course=course)
-
-        # Apply filters
-        if selected_week:
-            entries_query = entries_query.filter(week_id=selected_week)
-
-        if selected_teacher:
-            entries_query = entries_query.filter(teacher_id=selected_teacher)
-
+        ).filter(group__course=course, group__in=groups)
         if selected_day:
             entries_query = entries_query.filter(day_id=selected_day)
 
-        entries = entries_query.order_by(
+        # Для week1
+        week1_entries = entries_query.filter(week__number=1).order_by(
             "day__number", "lesson_number__number", "group__name"
         )
+        # Для week2
+        week2_entries = entries_query.filter(week__number=2).order_by(
+            "day__number", "lesson_number__number", "group__name"
+        )
+        # Для обычного режима (конкретная неделя)
+        filtered_entries = entries_query
+        if selected_week and selected_week != "ahli" and selected_week != "":
+            try:
+                filtered_entries = filtered_entries.filter(week_id=selected_week)
+            except (ValueError, TypeError):
+                pass
 
-        if not entries.exists():
-            continue
-
-        # Get all lesson numbers that have entries
-        lesson_numbers = entries.values_list("lesson_number", flat=True).distinct()
-        lesson_number_objs = LessonNumber.objects.filter(
-            id__in=lesson_numbers
-        ).order_by("number")
-
-        # Debug output
-        # print(f"\n=== Course: {course.faculty.name} — {course.number} Kurs ===")
-        # print(f"Lesson number objects: {[ln.number for ln in lesson_number_objs]}")
-
-        # Organize data: day -> lesson_number -> entries
-        timetable_data = {}
-
-        for day in days:
-            day_entries = entries.filter(day=day)
-
-            if not day_entries.exists():
-                continue
-
-            lesson_data = {}
-
-            # print(f"  Day: {day.get_number_display()}")
-
-            for lesson_num_obj in lesson_number_objs:
-                lesson_entries = day_entries.filter(lesson_number=lesson_num_obj)
-
-                # print(
-                #     f"    Lesson #{lesson_num_obj.number}: {lesson_entries.count()} entries"
-                # )
-
-                if lesson_entries.exists():
-                    # Check if all entries have the same subject and lesson type
+        # Функция для построения timetable_data
+        def build_timetable(entries, group_order=None, selected_teacher_id=None):
+            lesson_numbers = entries.values_list("lesson_number", flat=True).distinct()
+            lesson_number_objs = LessonNumber.objects.filter(
+                id__in=lesson_numbers
+            ).order_by("number")
+            timetable_data = {}
+            for day in days:
+                day_entries = entries.filter(day=day)
+                if not day_entries.exists():
+                    continue
+                lesson_data = {}
+                for lesson_num_obj in lesson_number_objs:
+                    lesson_entries = day_entries.filter(lesson_number=lesson_num_obj)
+                    if not lesson_entries.exists():
+                        continue
                     first_entry = lesson_entries.first()
                     is_same_subject = all(
                         e.subject_id == first_entry.subject_id
                         and e.lesson_type_id == first_entry.lesson_type_id
                         for e in lesson_entries
                     )
-
-                    # If it's a lecture (umumy) - merge with same subject
                     is_lecture = first_entry.lesson_type.name.lower() in [
                         "umumy",
                         "лекция",
                         "lecture",
                     ]
 
+                    # determine if any entry for this lesson matches selected teacher
+                    teacher_matches = False
+                    if selected_teacher_id:
+                        for e in lesson_entries:
+                            if e.teacher_id and str(e.teacher_id) == str(
+                                selected_teacher_id
+                            ):
+                                teacher_matches = True
+                                break
+
                     if is_lecture and is_same_subject:
-                        # Merged cell for all groups (same subject lecture)
-                        lesson_data[lesson_num_obj.number] = {
-                            "is_lecture": True,
-                            "subject": first_entry.subject.name,
-                            "lesson_type": first_entry.lesson_type.name,
-                            "teacher": first_entry.teacher.name
-                            if first_entry.teacher
-                            else None,
-                            "room": first_entry.room or None,
-                            "groups": [e.group.name for e in lesson_entries],
-                        }
-                        # print(f"      -> Lecture: {first_entry.subject.name}")
+                        if selected_teacher_id and not teacher_matches:
+                            # keep lecture row but blank content when teacher filter doesn't match
+                            lesson_data[lesson_num_obj.number] = {
+                                "is_lecture": True,
+                                "subject": None,
+                                "lesson_type": first_entry.lesson_type.name,
+                                "teacher": None,
+                                "room": None,
+                                "groups": [e.group.name for e in lesson_entries],
+                            }
+                        else:
+                            lesson_data[lesson_num_obj.number] = {
+                                "is_lecture": True,
+                                "subject": first_entry.subject.name,
+                                "lesson_type": first_entry.lesson_type.name,
+                                "teacher": first_entry.teacher.name
+                                if first_entry.teacher
+                                else None,
+                                "room": first_entry.room or None,
+                                "groups": [e.group.name for e in lesson_entries],
+                            }
                     else:
-                        # Practice or different subjects - show all in one row with horizontal division
+                        # For practice sessions, list each group's lesson in the correct order
+                        group_lessons_dict = {}
+                        for e in lesson_entries:
+                            group_lessons_dict[e.group.name] = {
+                                "group": e.group.name,
+                                "subject": e.subject.name,
+                                "lesson_type": e.lesson_type.name,
+                                "teacher": e.teacher.name if e.teacher else None,
+                                "teacher_id": e.teacher_id,
+                                "room": e.room or None,
+                            }
+
+                        # Build a map that contains an entry for each group in group_order
+                        group_lessons_map = {}
+                        if group_order:
+                            for g in group_order:
+                                gl = group_lessons_dict.get(g)
+                                if (
+                                    selected_teacher_id
+                                    and gl
+                                    and gl.get("teacher_id")
+                                    and str(gl.get("teacher_id"))
+                                    != str(selected_teacher_id)
+                                ):
+                                    group_lessons_map[g] = None
+                                else:
+                                    group_lessons_map[g] = gl
+                        else:
+                            for gname, glesson in group_lessons_dict.items():
+                                if (
+                                    selected_teacher_id
+                                    and glesson
+                                    and glesson.get("teacher_id")
+                                    and str(glesson.get("teacher_id"))
+                                    != str(selected_teacher_id)
+                                ):
+                                    group_lessons_map[gname] = None
+                                else:
+                                    group_lessons_map[gname] = glesson
+
                         lesson_data[lesson_num_obj.number] = {
                             "is_lecture": False,
                             "group_lessons": [
-                                {
-                                    "group": e.group.name,
-                                    "subject": e.subject.name,
-                                    "lesson_type": e.lesson_type.name,
-                                    "teacher": e.teacher.name if e.teacher else None,
-                                    "room": e.room or None,
-                                }
-                                for e in lesson_entries
+                                v for v in group_lessons_map.values() if v
                             ],
+                            "group_lessons_map": group_lessons_map,
                         }
-                        # print(
-                        #     f"      -> Practice with {len(lesson_entries)} groups: {[e.subject.name for e in lesson_entries]}"
-                        # )
+                if lesson_data:
+                    timetable_data[day.id] = {
+                        "day_name": day.get_number_display(),
+                        "lessons": lesson_data,
+                        "lesson_count": len(lesson_data),
+                    }
+            return timetable_data, lesson_number_objs
 
-            if lesson_data:
-                timetable_data[day.id] = {
-                    "day_name": day.get_number_display(),
-                    "lessons": lesson_data,
-                    "lesson_count": len(lesson_data),
-                }
-
-        if timetable_data:
-            # Get weeks for this course
-            course_weeks = (
-                entries.values_list("week__number", flat=True)
-                .distinct()
-                .order_by("week__number")
-            )
-            week_numbers = list(course_weeks)
-
-            # print(
-            #     f"\n  Передаем в шаблон lesson_numbers: {[ln.number for ln in lesson_number_objs]}"
-            # )
-            # print(f"  Всего timetable_data дней: {len(timetable_data)}")
-            # for day_id, day_info in timetable_data.items():
-            #     print(
-            #         f"    День {day_info['day_name']}: ключи уроков = {list(day_info['lessons'].keys())}"
-            #     )
-            #     for lesson_key, lesson_val in day_info["lessons"].items():
-            #         print(
-            #             f"      Урок #{lesson_key}: is_lecture={lesson_val.get('is_lecture')}, group_lessons count={len(lesson_val.get('group_lessons', []))} or subject={lesson_val.get('subject')}"
-            #         )
-
-            courses_data.append(
-                {
-                    "course": course,
-                    "groups": group_names,
-                    "timetable": timetable_data,
-                    "lesson_numbers": lesson_number_objs,
-                    "week_numbers": week_numbers,
-                }
-            )
+        # If no specific week selected or "ahli" (all weeks), show both weeks
+        if not selected_week or selected_week == "ahli" or selected_week == "":
+            # Для week1
+            if week1_entries.exists():
+                timetable_data, lesson_number_objs = build_timetable(
+                    week1_entries, group_names, selected_teacher
+                )
+                if timetable_data:
+                    week1_courses_data.append(
+                        {
+                            "course": course,
+                            "groups": group_names,
+                            "timetable": timetable_data,
+                            "lesson_numbers": lesson_number_objs,
+                            "week_numbers": [1],
+                            "group_colspan": groups.count() * 2,
+                        }
+                    )
+            # Для week2
+            if week2_entries.exists():
+                timetable_data, lesson_number_objs = build_timetable(
+                    week2_entries, group_names, selected_teacher
+                )
+                if timetable_data:
+                    week2_courses_data.append(
+                        {
+                            "course": course,
+                            "groups": group_names,
+                            "timetable": timetable_data,
+                            "lesson_numbers": lesson_number_objs,
+                            "week_numbers": [2],
+                            "group_colspan": groups.count() * 2,
+                        }
+                    )
+        else:
+            # For a specific week
+            if filtered_entries.exists():
+                timetable_data, lesson_number_objs = build_timetable(
+                    filtered_entries, group_names, selected_teacher
+                )
+                if timetable_data:
+                    all_courses_data.append(
+                        {
+                            "course": course,
+                            "groups": group_names,
+                            "timetable": timetable_data,
+                            "lesson_numbers": lesson_number_objs,
+                            "week_numbers": [int(selected_week)]
+                            if selected_week
+                            else [],
+                            "group_colspan": groups.count() * 2,
+                        }
+                    )
 
     context = {
         "faculties": faculties,
@@ -349,7 +475,9 @@ def timetable_grid(request):
         "selected_day": selected_day,
         "selected_week_obj": selected_week_obj,
         "selected_day_obj": selected_day_obj,
-        "courses_data": courses_data,
+        "week1_courses_data": week1_courses_data,
+        "week2_courses_data": week2_courses_data,
+        "courses_data": all_courses_data,
     }
 
     return render(request, "timetable_grid.html", context)

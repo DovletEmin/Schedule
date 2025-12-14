@@ -5,7 +5,7 @@ class Faculty(models.Model):
     name = models.CharField(max_length=100)
 
     class Meta:
-        verbose_name_plural = "Faculties"
+        verbose_name_plural = "Fakultet"
 
     def __str__(self):
         return self.name
@@ -19,6 +19,7 @@ class Course(models.Model):
 
     class Meta:
         unique_together = (("number", "faculty"),)
+        verbose_name_plural = "Kurs"
 
     def __str__(self):
         return f"{self.faculty.name} — {self.number} Kurs"
@@ -30,6 +31,7 @@ class Group(models.Model):
 
     class Meta:
         unique_together = (("name", "course"),)
+        verbose_name_plural = "Topar"
 
     def __str__(self):
         return f"{self.name}"
@@ -39,12 +41,18 @@ class Group(models.Model):
 class Teacher(models.Model):
     name = models.CharField(max_length=100)
 
+    class Meta:
+        verbose_name_plural = "Mugallym"
+
     def __str__(self):
         return self.name
 
 
 class Week(models.Model):
     number = models.PositiveIntegerField(unique=True)
+
+    class Meta:
+        verbose_name_plural = "Hepde"
 
     def __str__(self):
         return str(self.number)
@@ -65,6 +73,7 @@ class Day(models.Model):
 
     class Meta:
         ordering = ["number"]
+        verbose_name_plural = "Gün"
 
     def __str__(self):
         return self.get_number_display()
@@ -75,6 +84,9 @@ class LessonNumber(models.Model):
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
 
+    class Meta:
+        verbose_name_plural = "Sapak nomer"
+
     def __str__(self):
         return str(self.number)
 
@@ -82,12 +94,18 @@ class LessonNumber(models.Model):
 class LessonType(models.Model):
     name = models.CharField(max_length=50)
 
+    class Meta:
+        verbose_name_plural = "Sapak görnüşi"
+
     def __str__(self):
         return self.name
 
 
 class Subject(models.Model):
     name = models.CharField(max_length=200, unique=True)
+
+    class Meta:
+        verbose_name_plural = "Sapaklaryň ady"
 
     def __str__(self):
         return self.name
@@ -108,7 +126,7 @@ class TimetableEntry(models.Model):
     class Meta:
         unique_together = (("week", "day", "group", "lesson_number"),)
         ordering = ["week__number", "day__number", "lesson_number__number"]
-        verbose_name_plural = "Timetable entries"
+        verbose_name_plural = "Sapak tertibi"
 
     def __str__(self):
         return f"{self.group} | Week {self.week} | {self.day} #{self.lesson_number} — {self.subject}"

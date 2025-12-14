@@ -19,6 +19,7 @@ pytest-django==4.11.1
 PyYAML==6.0.3
 referencing==0.37.0
 rpds-py==0.28.0
+ruff==0.14.8
 sqlparse==0.5.3
 typing_extensions==4.15.0
 tzdata==2025.2

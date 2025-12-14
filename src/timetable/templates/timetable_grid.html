@@ -5,9 +5,6 @@
 <div class="row">
     <div class="col-12">
         <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="bi bi-filter"></i> Filtr</h5>
-            </div>
             <div class="card-body">
                 <form method="get" id="filterForm">
                     <div class="row g-2 align-items-end">
@@ -49,7 +46,7 @@
                         <div class="col-md-2">
                             <label for="week" class="form-label form-label-sm">Hepde</label>
                             <select name="week" id="week" class="form-select form-select-sm">
-                                <option value="">Ähli</option>
+                                <option value="" {% if not selected_week or selected_week == "ahli" %}selected{% endif %}>Ähli</option>
                                 {% for week in weeks %}
                                     <option value="{{ week.id }}" {% if week.id|stringformat:"s" == selected_week %}selected{% endif %}>
                                         {{ week.number }} Hepde
@@ -70,7 +67,7 @@
                         </div>
                         <div class="col-md-2">
                             <a href="{% url 'timetable_grid' %}" class="btn btn-secondary btn-sm w-100">
-                                <i class="bi bi-arrow-counterclockwise"></i> Ýatyrmak
+                                <i class="bi bi-arrow-counterclockwise"></i> Arassala
                             </a>
                         </div>
                     </div>
@@ -80,118 +77,25 @@
     </div>
 </div>
 
-{% if courses_data %}
-    {% for course_data in courses_data %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow-sm course-card">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-0">
-                            <!-- <i class="bi bi-calendar-week"></i>  -->
-                            {% if selected_week_obj %}
-                                {{ selected_week_obj.number }} - Hepde
-                            {% else %}
-                                {% if course_data.week_numbers|length == 1 %}
-                                    {{ course_data.week_numbers.0 }} - Hepde
-                                {% else %}
-                                    {{ course_data.week_numbers|join:", " }} Hepdeler
-                                {% endif %}
-                            {% endif %}
-                        </h5>
-                    </div>
-                    <div class="flex-grow-1 text-center">
-                        <h5 class="mb-0">
-                            <strong>{{ course_data.course.faculty.name }} - {{ course_data.course.number }} Kurs</strong>
-                        </h5>
-                    </div>
-                    <!-- <button onclick="window.print()" class="btn btn-light btn-sm">
-                        <i class="bi bi-printer"></i> Çap et
-                    </button> -->
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="timetable-grid-vertical">
-                            <thead>
-                                <tr>
-                                    <th class="header-empty" colspan="2"></th>
-                                    {% for group in course_data.groups %}
-                                        <th class="group-header" colspan="2">{{ group }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for day in days %}
-                                    {% if day.id in course_data.timetable %}
-                                        {% with day_data=course_data.timetable|get_item:day.id %}
-                                        {% for lesson_num in course_data.lesson_numbers %}
-                                            {% if lesson_num.number in day_data.lessons %}
-                                                {% with entries=day_data.lessons|get_item:lesson_num.number %}
-                                                <tr class="lesson-row">
-                                                    {% if forloop.first %}
-                                                    <td class="day-cell" rowspan="{{ day_data.lesson_count }}">
-                                                        <div class="day-vertical">{{ day_data.day_name }}</div>
-                                                    </td>
-                                                    {% endif %}
-                                                    <td class="lesson-number-cell">
-                                                        <div><strong>{{ lesson_num.number }}</strong></div>
-                                                        {% if lesson_num.start_time and lesson_num.end_time %}
-                                                        <div class="lesson-time">
-                                                            {{ lesson_num.start_time|time:"H:i" }}<br>
-                                                            {{ lesson_num.end_time|time:"H:i" }}
-                                                        </div>
-                                                        {% endif %}
-                                                    </td>
-                                                    
-                                                    {% if entries.is_lecture %}
-                                                        {# Лекция - сплошная линия для всех групп #}
-                                                        <td class="subject-cell lecture-subject" colspan="3">
-                                                            <div class="subject-name">{{ entries.subject }}</div>
-                                                            <div class="teacher-names">
-                                                                {% if entries.teacher %}{{ entries.teacher }}{% endif %}
-                                                            </div>
-                                                        </td>
-                                                        <td class="room-cell lecture-room">
-                                                            {{ entries.room|default:"-" }}
-                                                        </td>
-                                                    {% else %}
-                                                        {# Практика - всегда 2 группы (даже если одна пустая) #}
-                                                        {% for group_lesson in entries.group_lessons %}
-                                                            <td class="subject-cell practice-subject">
-                                                                <div class="subject-name">{{ group_lesson.subject }}</div>
-                                                                <div class="teacher-names">
-                                                                    {% if group_lesson.teacher %}{{ group_lesson.teacher }}{% endif %}
-                                                                </div>
-                                                            </td>
-                                                            <td class="room-cell practice-room">
-                                                                {{ group_lesson.room|default:"-" }}
-                                                            </td>
-                                                        {% endfor %}
-                                                        {# Если только 1 группа, добавляем пустые ячейки #}
-                                                        {% if entries.group_lessons|length == 1 %}
-                                                            <td class="subject-cell empty-cell">
-                                                                <div class="empty-label">-</div>
-                                                            </td>
-                                                            <td class="room-cell empty-cell">
-                                                                <div class="empty-label">-</div>
-                                                            </td>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </tr>
-                                                {% endwith %}
-                                            {% endif %}
-                                        {% endfor %}
-                                        {% endwith %}
-                                    {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
+{% if week1_courses_data or week2_courses_data or courses_data %}
+    {% if week1_courses_data or week2_courses_data %}
+        {% if week1_courses_data %}
+            <!-- <h3 class="mt-4">1-nji hepde</h3> -->
+            {% for course_data in week1_courses_data %}
+                {% include "timetable_grid_course_block.html" with course_data=course_data days=days selected_week_obj=None week_number=1 %}
+            {% endfor %}
+        {% endif %}
+        {% if week2_courses_data %}
+            <!-- <h3 class="mt-4">2-nji hepde</h3> -->
+            {% for course_data in week2_courses_data %}
+                {% include "timetable_grid_course_block.html" with course_data=course_data days=days selected_week_obj=None week_number=2 %}
+            {% endfor %}
+        {% endif %}
+    {% else %}
+        {% for course_data in courses_data %}
+            {% include "timetable_grid_course_block.html" with course_data=course_data days=days selected_week_obj=selected_week_obj week_number=None %}
+        {% endfor %}
+    {% endif %}
 {% else %}
 <div class="row mt-4">
     <div class="col-12">
