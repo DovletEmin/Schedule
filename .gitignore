@@ -32,6 +32,8 @@ Desktop.ini
 
 db.sqlite3
 migrations/
+staticfiles/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
