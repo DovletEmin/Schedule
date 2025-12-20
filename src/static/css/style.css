@@ -381,7 +381,7 @@ td.room-cell.empty-cell {
 
 /* Room info inside subject cell */
 .room-info {
-    font-size: 0.85rem;
+    font-size: 1.05rem;
     color: var(--text-secondary);
     font-weight: 600;
     margin-top: 4px;
