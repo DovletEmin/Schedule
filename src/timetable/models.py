@@ -34,8 +34,7 @@ class Group(models.Model):
         verbose_name_plural = "Topar"
 
     def __str__(self):
-        return f"{self.name}"
-        # return f"{self.course} / {self.name}"
+        return f"{self.course} / {self.name}"
 
 
 class Teacher(models.Model):
@@ -55,7 +54,7 @@ class Week(models.Model):
         verbose_name_plural = "Hepde"
 
     def __str__(self):
-        return str(self.number)
+        return f"{str(self.number)} - Hepde"
 
 
 class DayChoices(models.IntegerChoices):
@@ -117,8 +116,8 @@ class TimetableEntry(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     lesson_number = models.ForeignKey(LessonNumber, on_delete=models.PROTECT)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    teacher = models.ForeignKey(
-        Teacher, on_delete=models.SET_NULL, null=True, blank=True
+    teachers = models.ManyToManyField(
+        Teacher, blank=True, related_name="timetable_entries"
     )
     lesson_type = models.ForeignKey(LessonType, on_delete=models.PROTECT)
     room = models.CharField(max_length=50, blank=True)

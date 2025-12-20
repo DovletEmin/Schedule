@@ -58,9 +58,13 @@ class WeekScheduleAPIView(APIView):
 
 
 class TimetableSearchAPIView(ListAPIView):
-    queryset = TimetableEntry.objects.select_related(
-        "week", "day", "group", "lesson_number", "subject", "teacher"
-    ).all()
+    queryset = (
+        TimetableEntry.objects.select_related(
+            "week", "day", "group", "lesson_number", "subject"
+        )
+        .prefetch_related("teachers")
+        .all()
+    )
     serializer_class = TimetableEntrySerializer
     filterset_class = TimetableEntryFilter
 
@@ -93,17 +97,20 @@ def timetable_view(request):
         groups = groups.filter(course_id=selected_course)
 
     # Build query for timetable entries
-    entries = TimetableEntry.objects.select_related(
-        "week",
-        "day",
-        "group",
-        "group__course",
-        "group__course__faculty",
-        "lesson_number",
-        "subject",
-        "teacher",
-        "lesson_type",
-    ).all()
+    entries = (
+        TimetableEntry.objects.select_related(
+            "week",
+            "day",
+            "group",
+            "group__course",
+            "group__course__faculty",
+            "lesson_number",
+            "subject",
+            "lesson_type",
+        )
+        .prefetch_related("teachers")
+        .all()
+    )
 
     # Apply filters
     if selected_faculty:
@@ -116,7 +123,7 @@ def timetable_view(request):
         entries = entries.filter(group_id=selected_group)
 
     if selected_teacher:
-        entries = entries.filter(teacher_id=selected_teacher)
+        entries = entries.filter(teachers__id=selected_teacher)
 
     if selected_week:
         entries = entries.filter(week_id=selected_week)
@@ -242,7 +249,7 @@ def timetable_grid(request):
     # If teacher is selected, filter courses that have lessons from this teacher
     if selected_teacher:
         courses_with_teacher = (
-            TimetableEntry.objects.filter(teacher_id=selected_teacher)
+            TimetableEntry.objects.filter(teachers__id=selected_teacher)
             .values_list("group__course_id", flat=True)
             .distinct()
         )
@@ -270,9 +277,13 @@ def timetable_grid(request):
             continue
 
         group_names = [g.name for g in groups]
-        entries_query = TimetableEntry.objects.select_related(
-            "week", "day", "group", "lesson_number", "subject", "teacher", "lesson_type"
-        ).filter(group__course=course, group__in=groups)
+        entries_query = (
+            TimetableEntry.objects.select_related(
+                "week", "day", "group", "lesson_number", "subject", "lesson_type"
+            )
+            .prefetch_related("teachers")
+            .filter(group__course=course, group__in=groups)
+        )
         if selected_day:
             entries_query = entries_query.filter(day_id=selected_day)
 
@@ -324,9 +335,10 @@ def timetable_grid(request):
                     teacher_matches = False
                     if selected_teacher_id:
                         for e in lesson_entries:
-                            if e.teacher_id and str(e.teacher_id) == str(
-                                selected_teacher_id
-                            ):
+                            teacher_ids = list(e.teachers.values_list("id", flat=True))
+                            if teacher_ids and str(selected_teacher_id) in [
+                                str(t) for t in teacher_ids
+                            ]:
                                 teacher_matches = True
                                 break
 
@@ -346,8 +358,10 @@ def timetable_grid(request):
                                 "is_lecture": True,
                                 "subject": first_entry.subject.name,
                                 "lesson_type": first_entry.lesson_type.name,
-                                "teacher": first_entry.teacher.name
-                                if first_entry.teacher
+                                "teacher": ", ".join(
+                                    [t.name for t in first_entry.teachers.all()]
+                                )
+                                if first_entry.teachers.exists()
                                 else None,
                                 "room": first_entry.room or None,
                                 "groups": [e.group.name for e in lesson_entries],
@@ -356,12 +370,23 @@ def timetable_grid(request):
                         # For practice sessions, list each group's lesson in the correct order
                         group_lessons_dict = {}
                         for e in lesson_entries:
+                            teacher_qs = e.teachers.all()
+                            teacher_names = (
+                                ", ".join([t.name for t in teacher_qs])
+                                if teacher_qs.exists()
+                                else None
+                            )
+                            teacher_ids = (
+                                list(teacher_qs.values_list("id", flat=True))
+                                if teacher_qs.exists()
+                                else []
+                            )
                             group_lessons_dict[e.group.name] = {
                                 "group": e.group.name,
                                 "subject": e.subject.name,
                                 "lesson_type": e.lesson_type.name,
-                                "teacher": e.teacher.name if e.teacher else None,
-                                "teacher_id": e.teacher_id,
+                                "teacher": teacher_names,
+                                "teacher_id": teacher_ids,
                                 "room": e.room or None,
                             }
 
@@ -374,8 +399,8 @@ def timetable_grid(request):
                                     selected_teacher_id
                                     and gl
                                     and gl.get("teacher_id")
-                                    and str(gl.get("teacher_id"))
-                                    != str(selected_teacher_id)
+                                    and str(selected_teacher_id)
+                                    not in [str(t) for t in gl.get("teacher_id")]
                                 ):
                                     group_lessons_map[g] = None
                                 else:
@@ -386,8 +411,8 @@ def timetable_grid(request):
                                     selected_teacher_id
                                     and glesson
                                     and glesson.get("teacher_id")
-                                    and str(glesson.get("teacher_id"))
-                                    != str(selected_teacher_id)
+                                    and str(selected_teacher_id)
+                                    not in [str(t) for t in glesson.get("teacher_id")]
                                 ):
                                     group_lessons_map[gname] = None
                                 else:

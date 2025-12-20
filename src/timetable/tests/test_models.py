@@ -31,10 +31,10 @@ def test_create_timetable_entry():
         group=group,
         lesson_number=lesson_number,
         subject=subject,
-        teacher=teacher,
         lesson_type=lesson_type,
         room="101",
     )
+    entry.teachers.add(teacher)
 
     assert (
         str(entry)

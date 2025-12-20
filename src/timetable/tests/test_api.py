@@ -34,10 +34,20 @@ def test_week_day_schedule_api():
         group=group,
         lesson_number=lesson_number,
         subject=subject,
-        teacher=teacher,
         lesson_type=lesson_type,
         room="101",
     )
+
+    entry = TimetableEntry.objects.create(
+        week=week,
+        day=day,
+        group=group,
+        lesson_number=lesson_number,
+        subject=subject,
+        lesson_type=lesson_type,
+        room="101",
+    )
+    entry.teachers.add(teacher)
 
     response = client.get(f"/api/{week.number}/{day.number}/")
 
@@ -69,10 +79,19 @@ def test_timetable_search_api():
         group=group,
         lesson_number=lesson_number,
         subject=subject,
-        teacher=teacher,
         lesson_type=lesson_type,
         room="101",
     )
+    entry = TimetableEntry.objects.create(
+        week=week,
+        day=day,
+        group=group,
+        lesson_number=lesson_number,
+        subject=subject,
+        lesson_type=lesson_type,
+        room="101",
+    )
+    entry.teachers.add(teacher)
 
     response = client.get("/api/search/?teacher=Ali")
     assert response.status_code == 200

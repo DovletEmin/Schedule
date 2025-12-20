@@ -4,7 +4,7 @@ from .models import TimetableEntry
 
 class TimetableEntryFilter(django_filters.FilterSet):
     # Filter by ID
-    teacher_id = django_filters.NumberFilter(field_name="teacher__id")
+    teacher_id = django_filters.NumberFilter(field_name="teachers__id")
     week_id = django_filters.NumberFilter(field_name="week__id")
     day_id = django_filters.NumberFilter(field_name="day__id")
     group_id = django_filters.NumberFilter(field_name="group__id")
@@ -13,7 +13,7 @@ class TimetableEntryFilter(django_filters.FilterSet):
 
     # Filter by name/number (for text search)
     teacher = django_filters.CharFilter(
-        field_name="teacher__name", lookup_expr="icontains"
+        field_name="teachers__name", lookup_expr="icontains"
     )
     week = django_filters.NumberFilter(field_name="week__number")
     day = django_filters.NumberFilter(field_name="day__number")

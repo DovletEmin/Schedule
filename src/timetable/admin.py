@@ -78,7 +78,7 @@ class TimetableEntryAdmin(admin.ModelAdmin):
         "group",
         "lesson_number",
         "subject",
-        "teacher",
+        "teachers_display",
         "lesson_type",
         "room",
     )
@@ -88,4 +88,9 @@ class TimetableEntryAdmin(admin.ModelAdmin):
         "group__course__faculty",
         "group__course__number",
     )
-    search_fields = ("subject__name", "teacher__name", "group__name")
+    search_fields = ("subject__name", "teachers__name", "group__name")
+
+    def teachers_display(self, obj):
+        return ", ".join([t.name for t in obj.teachers.all()])
+
+    teachers_display.short_description = "Teachers"

@@ -65,11 +65,27 @@ class TimetableEntrySerializer(serializers.ModelSerializer):
     # lesson_number = serializers.StringRelatedField()
     lesson_type = serializers.StringRelatedField()
     subject = serializers.StringRelatedField()
-    teacher = serializers.StringRelatedField()
+    teacher = serializers.SerializerMethodField()
 
     class Meta:
         model = TimetableEntry
-        fields = "__all__"
+        fields = [
+            "id",
+            "week",
+            "day",
+            "group",
+            "lesson_number",
+            "subject",
+            "teacher",
+            "lesson_type",
+            "room",
+        ]
+
+    def get_teacher(self, obj):
+        qs = obj.teachers.all()
+        if not qs.exists():
+            return None
+        return ", ".join([t.name for t in qs])
         # fields = ['group', 'lesson_type', 'subject', 'teacher']
 
 
