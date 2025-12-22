@@ -221,14 +221,14 @@ def timetable_grid(request):
     if selected_faculty:
         teachers = (
             Teacher.objects.filter(
-                timetableentry__group__course__faculty_id=selected_faculty
+                timetable_entries__group__course__faculty_id=selected_faculty
             )
             .distinct()
             .order_by("name")
         )
     elif selected_course:
         teachers = (
-            Teacher.objects.filter(timetableentry__group__course_id=selected_course)
+            Teacher.objects.filter(timetable_entries__group__course_id=selected_course)
             .distinct()
             .order_by("name")
         )
